@@ -3,8 +3,8 @@ All this script does right now is assess the reading level of a text using the T
 http://readabilityformulas.com/flesch-grade-level-readability-formula.php
 
 #### Dependencies
-You will probably need to install these packages
-pip install nltk
+You will probably need to install these packages <br>
+pip install nltk <br>
 pip install big-phoney
 
 #### How to
