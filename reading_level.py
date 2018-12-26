@@ -9,7 +9,7 @@ possessives_regex = re.compile(r'(\'s)')
 stopwords = nltk.corpus.stopwords.words('english')
 
 def get_word_frequncies(tokenized_word_list, stopwords) -> dict:
-    tokenized_words_cleaned = [word for word in tokenized_word_list if word not in stopwords]
+    tokenized_words_cleaned = [word.lower() for word in tokenized_word_list if word not in stopwords]
 
     word_frequencies_dict = defaultdict(int) # This could be cleaned up
     for word in tokenized_words_cleaned:  
@@ -21,10 +21,10 @@ def get_sentence_score_dict(sentence_list, cleaned_sentences_list, word_frequenc
     
     sentence_score_dict = defaultdict(int)
 
-    for index, sentence in enumerate(sentence_list): 
+    for index, sentence in enumerate(cleaned_sentences_list): 
         if len(sentence.split(' ')) < 30: 
             for word in nltk.word_tokenize(sentence):
-                sentence_score_dict[sentence] += word_frequencies[word]
+                sentence_score_dict[sentence_list[index]] += word_frequencies[word]
     return sentence_score_dict
 
 def get_clean_text(text) -> str:
@@ -44,10 +44,10 @@ def get_text_stats(text):
     text_stats["tokenized_word_list"] = nltk.word_tokenize(text_stats["super_clean_text"])
     text_stats["number_of_words"] = len(text_stats["tokenized_word_list"]) # You still want all the punctuation to detect sentences!
     text_stats["sentences_list"] = nltk.sent_tokenize(text_stats["clean_text"])
-    text_stats["cleaned_sentences"] = [[word for word in sentence if word not in stopwords] for sentence in text_stats["sentences_list"]]
+    text_stats["cleaned_sentences"] = [get_super_clean_text(get_clean_text(sentence)) for sentence in text_stats["sentences_list"]]
     text_stats["number_of_sentences"] = len(text_stats["sentences_list"])
     text_stats["avg_sentence_length"] = text_stats["number_of_words"] / text_stats["number_of_sentences"]
-    text_stats["syllables"] = phoney.count_syllables(' '.join(text_stats["tokenized_word_list"]))
+    text_stats["syllables"] = phoney.count_syllables(text_stats["super_clean_text"])
     text_stats["avg_syllables_per_word"] = text_stats["syllables"] / text_stats["number_of_words"]
     text_stats["word_frequencies"] = get_word_frequncies(text_stats["tokenized_word_list"], stopwords)
     text_stats["maximum_word_frequency"] = max(text_stats["word_frequencies"].values())
@@ -78,5 +78,6 @@ def load_text_stats(text_stats):
 if __name__ == "__main__":
     with open ("text_file.txt", "r") as reader_obj:
         text_stats = get_text_stats(reader_obj.read())
+        print (text_stats)
         save_text_stats(text_stats)
 
