@@ -53,11 +53,15 @@ def get_text_stats(text):
     text_stats["maximum_word_frequency"] = max(text_stats["word_frequencies"].values())
     text_stats["weighted_word_frequencies"] = {word: text_stats["word_frequencies"][word]/text_stats["maximum_word_frequency"] for word in text_stats["word_frequencies"].keys()}
     text_stats["Flesch-Kincaid-reading-level"] = get_reading_level(text_stats["avg_sentence_length"], text_stats["avg_syllables_per_word"])
+    text_stats["reading_ease"] = get_reading_ease(text_stats["avg_sentence_length"], text_stats["avg_syllables_per_word"])
     text_stats["sentence_scores"] = get_sentence_score_dict(text_stats["sentences_list"],text_stats["cleaned_sentences"], text_stats["word_frequencies"])
     text_stats["summary"] = get_summary(text_stats["sentence_scores"])
     
     return text_stats
 
+def get_reading_ease(avg_sentence_length, avg_syllables_per_word):
+    #RE = 206.835 – (1.015 x ASL) – (84.6 x ASW) 
+    return 206.835 - (1.015 * avg_sentence_length) - (84.6 * avg_syllables_per_word)
 
 def get_reading_level(avg_sentence_length, avg_syllables_per_word):
     # Flesch-Kincaid
@@ -76,7 +80,7 @@ def load_text_stats(text_stats):
         text_stats = pickle.load(handle)
 
 if __name__ == "__main__":
-    with open ("text_file.txt", "r") as reader_obj:
+    with open ("text_file.txt", "r", encoding="utf8") as reader_obj:
         text_stats = get_text_stats(reader_obj.read())
         print (text_stats)
         save_text_stats(text_stats)
