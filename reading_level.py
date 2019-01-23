@@ -1,6 +1,8 @@
-import nltk, string, sys, unicodedata, re, contractions, heapq, pickle, heapq
+import nltk, string, sys, unicodedata, re, contractions, heapq, pickle, heapq, os
+from nltk.draw.tree import TreeView
 from collections import defaultdict
 from big_phoney import BigPhoney
+from nltk.corpus import treebank
 phoney = BigPhoney()
 
 punctuation_regex = re.compile(r'[-.?!,":;()|0-9]')
@@ -37,6 +39,64 @@ def get_super_clean_text(clean_text) -> str:
     no_possessives_text = possessives_regex.sub("", no_punctuation_text) # Remove posessives
     return no_possessives_text
 
+
+def get_graph(tokenized_word_list):
+    tagged = nltk.pos_tag(tokenized_word_list)
+#     grammar = r"""
+#   NP: {<DT|JJ|NN.*>+}          # Chunk sequences of DT, JJ, NN
+#   PP: {<IN><NP>}               # Chunk prepositions followed by NP
+#   VP: {<VB.*><NP|PP|CLAUSE>+$} # Chunk verbs and their arguments
+#   CLAUSE: {<NP><VP>}           # Chunk NP, VP
+#   """
+    grammar =r"""
+  NP:
+  {<DT|JJ>}          # chunk determiners and adjectives
+  }<[\.VI].*>+{      # chink any tag beginning with V, I, or .
+  <.*>}{<DT>         # split a chunk at a determiner
+  <DT|JJ>{}<NN.*>    # merge chunk ending with det/adj
+                     # with one starting with a noun
+  """
+    cp = nltk.RegexpParser(grammar)
+    results = cp.parse(tagged)
+    for index, result in enumerate(results):
+        if len(result) <=2:
+            del results[index]
+        else:
+            print (result)
+
+    for index, result in enumerate(results):
+        if len(result) <=2:
+            del results[index]
+        else:
+            print (result)
+
+    for index, result in enumerate(results):
+        if len(result) <=2:
+            del results[index]
+        else:
+            print (result)
+    
+    for index, result in enumerate(results):
+        if len(result) <=2:
+            del results[index]
+        else:
+            print (result)
+
+    for index, result in enumerate(results):
+        if len(result) <=2:
+            del results[index]
+        else:
+            print (result)
+
+    for index, result in enumerate(results):
+        if len(result) <=2:
+            del results[index]
+        else:
+            print (result)
+
+    TreeView(results)._cframe.print_to_file('output_2.ps')
+    print ("done")
+
 def get_text_stats(text):
     text_stats = {}
     text_stats["clean_text"] = get_clean_text(text)
@@ -56,7 +116,7 @@ def get_text_stats(text):
     text_stats["reading_ease"] = get_reading_ease(text_stats["avg_sentence_length"], text_stats["avg_syllables_per_word"])
     text_stats["sentence_scores"] = get_sentence_score_dict(text_stats["sentences_list"],text_stats["cleaned_sentences"], text_stats["word_frequencies"])
     text_stats["summary"] = get_summary(text_stats["sentence_scores"])
-    
+    get_graph(text_stats["tokenized_word_list"])
     return text_stats
 
 def get_reading_ease(avg_sentence_length, avg_syllables_per_word):
@@ -80,6 +140,7 @@ def load_text_stats(text_stats):
         text_stats = pickle.load(handle)
 
 if __name__ == "__main__":
+
     with open ("text_file.txt", "r", encoding="utf8") as reader_obj:
         text_stats = get_text_stats(reader_obj.read())
         print (text_stats)
