@@ -6,16 +6,20 @@ import os
 
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
-# Read the whole text.
 text = open('text_file.txt', "r", encoding="utf8").read()
 
-# read the mask / color image taken from
-# http://jirkavinse.deviantart.com/art/quot-Real-Life-quot-Alice-282261010
-alice_coloring = np.array(Image.open("White-Rabbit.png"))
+image_coloring = np.array(Image.open("lips.png"))
 stopwords = set(STOPWORDS)
 
-wc = WordCloud(background_color="black", mask=alice_coloring,
-               stopwords=stopwords, width=800, height=400, max_words=40, font_path="Zombie_Holocaust.ttf")
+wc = WordCloud(background_color="white", mask=image_coloring,
+               stopwords=stopwords, width=800, height=400, max_words=90, font_path="Zombie_Holocaust.ttf")
 
 wc.generate(text)
-wc.to_file("rabbit.png")
+image_colors = ImageColorGenerator(image_coloring)
+
+
+plt.imshow(wc.recolor(color_func=image_colors), interpolation="bilinear")
+plt.axis('off')
+plt.savefig("black_lips.png", transparent = True, bbox_inches = 'tight', pad_inches = 0)
+
+#wc.to_file("black_lips.png")
